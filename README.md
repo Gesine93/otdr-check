@@ -5,7 +5,7 @@ The OTDR Protocol Checker project consists of two Python scripts designed to aut
 
 ## Project Files
 
-###otdr_check_raw.py
+### otdr_check_raw.py
 
 This script processes OTDR Excel files to extract cable lengths, calculate attenuation values, and identify any values exceeding predetermined thresholds. It generates a summary report in an Excel file.
 Functions
