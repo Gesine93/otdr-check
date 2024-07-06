@@ -84,7 +84,7 @@ def attenuation(path):
             # Amount of grade C plugs
             nc = sh['CY55'].value
             # additionally allowed attenuation
-            T = 0.75
+            t = sh['BS55'].value
             invalid_value_found = False
             
             # Check each cell for invalid values and write the corresponding addresses to the CSV file
