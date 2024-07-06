@@ -2,7 +2,7 @@
 
 This Python script processes OTDR (Optical Time Domain Reflectometer) data from multiple XLSX files in a specified directory. It calculates cable lengths, average lengths, span losses for different wavelengths, and checks if attenuation values exceed predefined thresholds.
 
-#### Libraries Used:
+#### Libraries Used
 - `pandas` for data manipulation
 - `glob` for file path handling
 - `csv` for CSV file operations
@@ -11,10 +11,7 @@ This Python script processes OTDR (Optical Time Domain Reflectometer) data from 
 - `re` for regular expressions
 - `openpyxl` for reading and writing XLSX files
 
-#### Constants:
-- `ATTENUATION_LIMIT_1310`, `ATTENUATION_LIMIT_1550`, `ATTENUATION_LIMIT_1625`: Threshold values for attenuation limits.
-
-#### Functions:
+#### Functions
 
 1. **`main()`**
    - Entry point of the script.
@@ -61,13 +58,13 @@ This Python script processes OTDR (Optical Time Domain Reflectometer) data from 
 12. **`highlight_exceeding_cells(worksheet, row, max_span_1310, max_span_1550, max_span_1625)`**
     - Highlights cells in `worksheet` if span losses exceed calculated maximum values.
 
-#### Execution:
+#### Execution
 - The script is executed from the command line.
 - It accepts optional arguments (`-f, --files` for directory path, `-s, --splices` for number of splices, `-e, --extra` for additional attenuation).
 - If no -f, -s, or -e options are provided, defaults (os.getcwd(), 3, 0.75) will be used, respectively.
 - Outputs "Done" upon successful completion.
 
-#### Script Outputs:
+#### Script Outputs
 - After execution, the script outputs:
   - "Done" message indicating successful completion.
 - It creates several output files:
@@ -75,6 +72,6 @@ This Python script processes OTDR (Optical Time Domain Reflectometer) data from 
   - `OTDR_Excel.xlsx`: Converted from CSV files containing processed data.
   - `OTDR_Excel_checked.xlsx`: Final version with highlighted cells indicating exceeding attenuation limits.
 
-### Example Usage:
+### Example Usage
 ```bash
 python otdr_check_rd.py -f /path/to/files -s 5 -e 1.0
