@@ -11,8 +11,6 @@ This script processes OTDR Excel files to extract cable lengths, calculate atten
 
 #### Functions
 
-### Functions Overview
-
 1. **main()**: 
    Orchestrates the entire process, including parsing command-line arguments, changing the directory, processing XLSX files, converting CSV to Excel, and checking attenuation limits.
 
