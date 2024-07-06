@@ -27,7 +27,7 @@ def cable_length(path):
         # Create a CSV writer object
         OTDR_writer = csv.writer(OTDR_file, delimiter=',', lineterminator='\r')
         # Write the header row to the CSV file
-        OTDR_writer.writerow(['Adresse', 'Kabellaengen', 'HA-KVz [m]'])
+        OTDR_writer.writerow(['Address', 'Cable Length', 'HA-KVz [m]'])
         
         # Get a list of all XLSX files in the specified directory
         filenames = glob.glob(path + "/*.xlsx")
