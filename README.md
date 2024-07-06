@@ -11,7 +11,7 @@ This script processes OTDR Excel files to extract cable lengths, calculate atten
 Functions
 
 #### Function
-1. **main()**
+**main()**
   - sets the path to the directory containing OTDR Excel files and processes each file.
   - extracts relevant information and calculates span losses for different wavelengths (1310 nm, 1550 nm, 1625 nm).
   - Writes the extracted data to a CSV file and converts it to an Excel file.
