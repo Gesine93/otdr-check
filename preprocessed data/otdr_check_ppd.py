@@ -5,7 +5,7 @@ import os
 import sys
 from openpyxl import load_workbook
 
-def main(path=path):
+def main():
     # Define the path to the directory containing XLSX files (default is current working directory)
     path = os.getcwd()
     # optionally the directory to the files can be given in the command line
@@ -19,7 +19,7 @@ def main(path=path):
     print(print_result(cable_length(path), attenuation(path)))
 
 def cable_length(path):
-    num_adress = 0
+    num_address = 0
     # Create or open a CSV file named 'OTDR.csv' for writing
     with open('OTDR.csv', mode='w') as OTDR_file:
         # Create a CSV writer object
@@ -35,17 +35,17 @@ def cable_length(path):
             # Select the first worksheet in the workbook
             sh = wb.worksheets[0]
             # Get the values of specific cells
-            adresse = sh['Z31'].value
-            laenge = sh['BT45'].value
+            address = sh['Z31'].value
+            length = sh['BT45'].value
             # Write the values to the CSV file
-            OTDR_writer.writerow([adresse, laenge])
+            OTDR_writer.writerow([address, cable length])
             # Increment the address counter
-            num_adress += 1
+            num_address += 1
     # Convert all CSV files in the directory to XLSX format
     filenames = glob.glob(path + "\\*.csv")
     for file in filenames:
         read_file = pd.read_csv(file, encoding='latin-1')
-        read_file.to_excel('OTDR_Kabellaenge' + '.xlsx', index=None, header=True)
+        read_file.to_excel('OTDR_cable_length' + '.xlsx', index=None, header=True)
     # Remove the temporary CSV file
     os.remove('OTDR.csv')
     return num_adress
@@ -60,7 +60,7 @@ def attenuation(path):
     cells_1625 = ['AZ87', 'AZ92', 'AZ97', 'AZ102', 'AZ107', 'AZ112', 'AZ117', 'DG87', 'DG92', 'DG97', 'DG102',
                   'DG107', 'DGX12', 'DG117']
     # writing the adresses with too high attenuation values to a csv file
-    with open('OTDR_Daempfung.csv', mode='w') as OTDR_file:
+    with open('OTDR_attenuation.csv', mode='w') as OTDR_file:
         writer = csv.writer(OTDR_file, lineterminator='\r')
         filenames = glob.glob(path + "\\*.xlsx")
         # checking every OTDR xlsx file
@@ -71,7 +71,7 @@ def attenuation(path):
             ns = sh['CY45'].value
             # cable length
             l = sh['BT45'].value
-            # amount if grade B plugs
+            # amount of grade B plugs
             nb = sh['CY50'].value
             # amount of grade C plugs
             nc = sh['CY55'].value
@@ -80,8 +80,8 @@ def attenuation(path):
             for cell in cells_1310:
                 try:
                     value = sh[cell].value
-                    Daempfung_soll = 0.00036 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + 0.75
-                    if value > Daempfung_soll:
+                    attenuation_max = 0.00036 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + 0.75
+                    if value > attenuation_max:
                         invalid_value_found = True
                         writer.writerow([str(sh['Z31'].value)])
                         num_invalid += 1
@@ -92,8 +92,8 @@ def attenuation(path):
                 for cell in cells_1550:
                     try:
                         value = sh[cell].value
-                        Daempfung_soll = 0.00021 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + 0.75
-                        if value > Daempfung_soll:
+                        attenuation_max = 0.00021 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + 0.75
+                        if value > attenuation_max:
                             invalid_value_found = True
                             writer.writerow([str(sh['Z31'].value)])
                             num_invalid += 1
@@ -104,8 +104,8 @@ def attenuation(path):
                 for cell in cells_1625:
                     try:
                         value = sh[cell].value
-                        Daempfung_soll = 0.00025 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + 0.75
-                        if value > Daempfung_soll:
+                        attenuation_max = 0.00025 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + 0.75
+                        if value > attenuation_max:
                             writer.writerow([str(sh['Z31'].value)])
                             num_invalid += 1
                             break
@@ -113,7 +113,7 @@ def attenuation(path):
                         continue
     return num_invalid
 
-def print_result(adressen, invalid):
+def print_result(addresses, invalid):
     # Return a formatted string with the number of addresses and the number of invalid values found
     return f'Fertig! Es wurden die Kabellängen von {adressen} ausgelesen. Bei {invalid} Adressen war mindestens ein Dämpfungswert zu hoch.'
 
