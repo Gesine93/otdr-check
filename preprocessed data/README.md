@@ -39,6 +39,9 @@ This Python script automates the processing of OTDR (Optical Time Domain Reflect
 - After execution, the script outputs a formatted message indicating:
   - The number of cable lengths processed.
   - The number of addresses where at least one attenuation value was found to be too high.
+- It creates several output files:
+  - `OTDR_cable_length.xlsx`: Contains the cable lengths.
+  - `OTDR_attenuation.csv`: Contains the adresses, where at least one attenuation value is higher than the threshold.
 
 ### Example Usage
 ```bash
