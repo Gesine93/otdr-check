@@ -31,7 +31,7 @@ def main():
 def parse_arguments():
     parser = argparse.ArgumentParser(
         prog='OTDR Raw Data Checker',
-        description='The program reads raw OTDR data in XLSX format and puts out the cable length and attenuation for each wavelength. It also checks if the attenuations are below the threshold value. Command line arguments: python otdr_check_rd.py [--files optional_path_to_directory] [--splices number_of_splices] [--extra additional_attenuation]',
+        description='The program reads raw OTDR data in XLSX format and puts out the cable length and attenuation for each address and wavelength. It also checks if the attenuations are below the threshold value. Command line arguments: python otdr_check_rd.py [--files optional_path_to_directory] [--splices number_of_splices (integer or cell reference)] [--extra additional_attenuation]',
         epilog=''
     )
     parser.add_argument('-f', '--files')
@@ -165,7 +165,7 @@ def get_amount_splices(argv, worksheet):
             return worksheet.cell(argv['splices']).value
         else:
             try:
-                return float(argv["splices"])
+                return int(argv["splices"])
             except:
                 return 3
     else:
