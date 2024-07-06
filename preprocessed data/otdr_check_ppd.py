@@ -83,13 +83,15 @@ def attenuation(path):
             nb = sh['CY50'].value
             # Amount of grade C plugs
             nc = sh['CY55'].value
+            # additionally allowed attenuation
+            T = 0.75
             invalid_value_found = False
             
             # Check each cell for invalid values and write the corresponding addresses to the CSV file
             for cell in cells_1310:
                 try:
                     value = sh[cell].value
-                    attenuation_max = 0.00036 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + 0.75
+                    attenuation_max = 0.00036 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + T
                     if value > attenuation_max:
                         invalid_value_found = True
                         writer.writerow([str(sh['Z31'].value)])
@@ -102,7 +104,7 @@ def attenuation(path):
                 for cell in cells_1550:
                     try:
                         value = sh[cell].value
-                        attenuation_max = 0.00021 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + 0.75
+                        attenuation_max = 0.00021 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + T
                         if value > attenuation_max:
                             invalid_value_found = True
                             writer.writerow([str(sh['Z31'].value)])
@@ -115,7 +117,7 @@ def attenuation(path):
                 for cell in cells_1625:
                     try:
                         value = sh[cell].value
-                        attenuation_max = 0.00025 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + 0.75
+                        attenuation_max = 0.00025 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + T
                         if value > attenuation_max:
                             writer.writerow([str(sh['Z31'].value)])
                             num_invalid += 1
