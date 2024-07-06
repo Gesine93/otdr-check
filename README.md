@@ -55,9 +55,9 @@ This script processes OTDR Excel files to extract cable lengths, calculate atten
 
 - Run the script from the command line with the optional directory argument:
 
-  ```
+```
 python otdr_check_rd.py [-f/--files optional_path_to_directory] [-s/--splices number_of_splices] [-e/--extra additional_attenuation]
-  ```
+```
 
 ### otdr_check_ppd.py
 This script processes preprocessed OTDR data.
