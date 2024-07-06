@@ -2,14 +2,14 @@
 
 This Python script automates the processing of OTDR (Optical Time Domain Reflectometer) data from multiple XLSX files in a specified directory. It performs two main tasks: calculating cable lengths and checking for excessive attenuation values.
 
-#### Libraries Used:
+#### Libraries Used
 - `pandas` for data manipulation
 - `glob` for file path handling
 - `csv` for CSV file operations
 - `os` and `sys` for system-related operations
 - `openpyxl` for reading XLSX files
 
-#### Functions:
+#### Functions
 
 1. **`main()`**
    - Entry point of the script.
@@ -35,11 +35,11 @@ This Python script automates the processing of OTDR (Optical Time Domain Reflect
 - It expects a directory path as an optional argument (`python script.py [directory]`).
   - If no directory is provided, it defaults to the current working directory.
   
-#### Script Outputs:
+#### Script Outputs
 - After execution, the script outputs a formatted message indicating:
   - The number of cable lengths processed.
   - The number of addresses where at least one attenuation value was found to be too high.
 
-### Example Usage:
+### Example Usage
 ```bash
 python script.py /path/to/files
