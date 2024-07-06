@@ -17,7 +17,7 @@ ATTENUATION_LIMIT_1625 = 4.2
 def main():
     args = parse_arguments()
     argv = vars(args)
-    path = argv["files"] or sys.getcwd()
+    path = argv["files"] or os.getcwd()
 
     change_directory(path)
     filenames = glob.glob(path + "\\*.xlsx")
