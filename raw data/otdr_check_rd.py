@@ -24,9 +24,8 @@ def main():
         
         # Change the current working directory to the specified path
         os.chdir(path)
-        directory_suffix = path[-10:]
         filenames = glob.glob(path + "\\*.xlsx")
-        with open("OTDR.csv", mode="w", newline='') as OTDR_file:
+        with ope("OTDR.csv", mode="w", newline='') as OTDR_file:
             OTDR_writer = csv.writer(OTDR_file, delimiter=",", lineterminator="\r")
             OTDR_writer.writerow(
                 [
