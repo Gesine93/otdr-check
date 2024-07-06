@@ -5,8 +5,27 @@ The OTDR Protocol Checker project consists of two Python scripts designed to aut
 
 ## Project Files
 
-### otdr_check_rd.py
-This script processes raw OTDR data.
+###otdr_check_raw.py
+
+This script processes OTDR Excel files to extract cable lengths, calculate attenuation values, and identify any values exceeding predetermined thresholds. It generates a summary report in an Excel file.
+Functions
+
+#### Function
+- main()
+- sets the path to the directory containing OTDR Excel files and processes each file.
+- extracts relevant information and calculates span losses for different wavelengths (1310 nm, 1550 nm, 1625 nm).
+- Writes the extracted data to a CSV file and converts it to an Excel file.
+- Highlights cells in the Excel file where attenuation values exceed the thresholds.
+
+#### Usage
+- The path parameter in the main function should be set to the directory where all the OTDR Excel files are located.
+- Run the script from the command line with the optional directory argument:
+  ```
+  python otdr_check_rd.py [optional_path_to_directory]
+  ```
+
+### otdr_check_ppd.py
+This script processes preprocessed OTDR data.
 
 #### Functions
 1. **cable_length(path)**
@@ -27,22 +46,6 @@ This script processes raw OTDR data.
    - This is the entry point of the script.
    - The path to the directory containing XLSX files can be specified in the command line or defaults to the current working directory.
    - Calls `cable_length` and `attenuation` functions and prints the results using `print_result`.
-
-#### Usage
-- The path parameter in the main function should be set to the directory where all the OTDR Excel files are located.
-- Run the script from the command line with the optional directory argument:
-  ```
-  python otdr_check_rd.py [optional_path_to_directory]
-  ```
-
-### otdr_check_ppd.py
-This script processes preprocessed OTDR data.
-
-#### Functions
-1. **process_otdr_files(path)**
-   - Processes the OTDR Excel files to extract cable lengths, attenuation values, and other relevant data.
-   - Writes the extracted data to a new Excel file and highlights any values exceeding the predetermined thresholds.
-   - Returns a summary of the processed data, including the number of files processed and any issues found.
 
 #### Usage
 - The path parameter should be set to the directory where all the preprocessed OTDR Excel files are located.
