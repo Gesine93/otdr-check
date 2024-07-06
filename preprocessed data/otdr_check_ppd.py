@@ -115,7 +115,7 @@ def attenuation(path):
 
 def print_result(addresses, invalid):
     # Return a formatted string with the number of addresses and the number of invalid values found
-    return f'Fertig! Es wurden die Kabellängen von {adressen} ausgelesen. Bei {invalid} Adressen war mindestens ein Dämpfungswert zu hoch.'
+    return f'Done! The cable lengths of {addresses} were read. At {invalid} addresses, at least one attenuation value was too high.'
 
 if __name__ == '__main__':
     # Call the main function when the script is executed
