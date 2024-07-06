@@ -120,9 +120,12 @@ def main():
         for row in range(2, worksheet.max_row + 1):
             cable_length = worksheet.cell(row=row, column=3).value
             splice_loss = 0.2
-            max_span_1310 = (0.36 * cable_length + 0.45 + 0.7 + 0.75) + (3 * splice_loss)
-            max_span_1550 = (0.21 * cable_length + 0.45 + 0.7 + 0.75) + (3 * splice_loss)
-            max_span_1625 = (0.25 * cable_length + 0.45 + 0.7 + 0.75) + (3 * splice_loss)
+            # vvalues might have to be changed
+            amount_splices = 3
+            extra = 0.75
+            max_span_1310 = (0.36 * cable_length + 0.45 + 0.7 + extra) + (amount_splices * splice_loss)
+            max_span_1550 = (0.21 * cable_length + 0.45 + 0.7 + extra) + (amount_splices * splice_loss)
+            max_span_1625 = (0.25 * cable_length + 0.45 + 0.7 + extra) + (amount_splices * splice_loss)
             span_1310 = worksheet.cell(row=row, column=6).value
             span_1550 = worksheet.cell(row=row, column=7).value
             span_1625 = worksheet.cell(row=row, column=8).value
