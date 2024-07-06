@@ -1,6 +1,0 @@
-openpyxl
-os
-pandas
-glob
-csv
-sys
