@@ -61,7 +61,7 @@ This Python script processes OTDR (Optical Time Domain Reflectometer) data from 
 #### Execution
 - The script is executed from the command line.
 - It accepts optional arguments (`-f, --files` for directory path, `-s, --splices` for number of splices, `-e, --extra` for additional attenuation).
-- If no -f, -s, or -e options are provided, defaults (os.getcwd(), 3, 0.75) will be used, respectively.
+- If no -f, -s, or -e options are provided, defaults (current working directory, 3, 0.75) will be used, respectively.
 - Outputs "Done" upon successful completion.
 
 #### Script Outputs
