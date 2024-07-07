@@ -91,7 +91,7 @@ def attenuation(path):
             for cell in cells_1310:
                 try:
                     value = sh[cell].value
-                    attenuation_max = 0.00036 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + T
+                    attenuation_max = 0.00036 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + t
                     if value > attenuation_max:
                         invalid_value_found = True
                         writer.writerow([str(sh['Z31'].value)])
@@ -104,7 +104,7 @@ def attenuation(path):
                 for cell in cells_1550:
                     try:
                         value = sh[cell].value
-                        attenuation_max = 0.00021 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + T
+                        attenuation_max = 0.00021 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + t
                         if value > attenuation_max:
                             invalid_value_found = True
                             writer.writerow([str(sh['Z31'].value)])
@@ -117,7 +117,7 @@ def attenuation(path):
                 for cell in cells_1625:
                     try:
                         value = sh[cell].value
-                        attenuation_max = 0.00025 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + T
+                        attenuation_max = 0.00025 * l + 0.2 * ns + 0.45 * nb + 0.7 * nc + t
                         if value > attenuation_max:
                             writer.writerow([str(sh['Z31'].value)])
                             num_invalid += 1
