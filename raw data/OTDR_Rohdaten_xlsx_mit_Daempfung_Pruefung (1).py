@@ -21,7 +21,7 @@ parser.add_argument('-e', '--extra')
 return parser.parse_args()
 argv = vars(args)
 try:
-    path = argv["files"] or os.getcwd(
+    path = argv["files"] or os.getcwd()
     os.chdir(path)
     filenames = glob.glob(path + "\\*.xlsx")
     with open("OTDR.csv", mode="w") as OTDR_file:
