@@ -163,9 +163,9 @@ def checkValues(argv):
     for row in range(2, ws.max_row + 1):
         laenge = ws.cell(row=row, column=3).value
         GW_splice = 0.2
-        GW_span_1310 = (0.36 * laenge + 0.45 + 0.7 + 0.75) + (splices * GW_splice)
-        GW_span_1550 = (0.21 * laenge + 0.45 + 0.7 + 0.75) + (splices * GW_splice)
-        GW_span_1625 = (0.25 * laenge + 0.45 + 0.7 + 0.75) + (splices * GW_splice)
+        GW_span_1310 = (0.36 * laenge + 0.45 + 0.7 + extra) + (splices * GW_splice)
+        GW_span_1550 = (0.21 * laenge + 0.45 + 0.7 + extra) + (splices * GW_splice)
+        GW_span_1625 = (0.25 * laenge + 0.45 + 0.7 + extra) + (splices * GW_splice)
         span_1310 = ws.cell(row=row, column=6).value
         span_1550 = ws.cell(row=row, column=7).value
         span_1625 = ws.cell(row=row, column=8).value
