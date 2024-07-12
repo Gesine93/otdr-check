@@ -7,17 +7,22 @@ import csv
 import os
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
+import import argparse
 
 GW_1310 = 4.95
 GW_1550 = 3.93
 GW_1625 = 4.2
 
-
+parser = argparse.ArgumentParser(
+prog='OTDR Raw Data Checker', description='The program reads raw OTDR data in XLSX format and puts out the cable length and attenuation for each address and wavelength. It also checks if the attenuations are below the threshold value. Command line arguments: python otdr_check_rd.py [--files optional_path_to_directory] [--splices number_of_splices (integer or cell reference)] [--extra additional_attenuation]',epilog='')
+parser.add_argument('-f', '--files')
+parser.add_argument('-s', '--splices')
+parser.add_argument('-e', '--extra')
+return parser.parse_args()
+argv = vars(args)
 try:
-    # path muss angepasst werden
-    path = r"C:\Users\Gesine\Downloads\Test"
-    os.chdir(path)
-    KVZ = path[-10:]
+    path = argv["files"] or os.getcwd(
+    os.chdir(path)
     filenames = glob.glob(path + "\\*.xlsx")
     with open("OTDR.csv", mode="w") as OTDR_file:
         OTDR_writer = csv.writer(OTDR_file, delimiter=",", lineterminator="\r")
