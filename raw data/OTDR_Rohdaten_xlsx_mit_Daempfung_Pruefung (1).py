@@ -17,10 +17,9 @@ def main():
     argv = parseArguments()
     filenames = getFiles(argv)
     cableID = readCableID(filenames)
-    cablelength =
-    spanloss_1310 =
-    spanloss_1550 = 
-    spanloss_1625 = 
+    cablelength = read_cablelengths(filenames)
+    spanloss_1310, spanloss_1550, spanloss_1625 = read_spanlosses(filenames)
+    writeValues(cableID, cablelength, spanloss_1310,spanloss_1550,spanloss_1625)
     csv_file = glob.glob(path + "\\*.csv")
     writeExcel(csv_file)
     checkValues(argv)
@@ -75,6 +74,73 @@ def readCableID(filenames)
         except Exception as e:
             print("Cable ID couldn't be read: ", str(e))
 
+def read_cablelengths(filenames):
+    """
+    Liest die Kabellängen aus den angegebenen Dateien.
+
+    Args:
+    filenames (list of str): Liste der Dateinamen der Excel-Dateien.
+
+    Returns:
+    list: Liste der Kabellängen.
+    """
+    laenge = []
+
+    for file in filenames:
+        wb = load_workbook(file, data_only=True)
+        for x in range(1, len(wb.sheetnames)):
+            sheet = wb.worksheets[x]
+            kabel = sheet.cell(25, 4).value
+            try:
+                kabel_float = float(kabel)
+                laenge.append(kabel_float)
+            except Exception as e:
+                print("Ein Fehler ist aufgetreten beim Lesen der Kabellänge:", str(e))
+
+    return laenge
+
+def read_spanlosses(filenames):
+    """
+    Liest die Spannungsverluste aus den angegebenen Dateien.
+
+    Args:
+    filenames (list of str): Liste der Dateinamen der Excel-Dateien.
+
+    Returns:
+    tuple: Listen der Spannungsverluste für 1310, 1550 und 1625 nm.
+    """
+    span_1310 = []
+    span_1550 = []
+    span_1625 = []
+
+    for file in filenames:
+        wb = load_workbook(file, data_only=True)
+        for x in range(1, len(wb.sheetnames)):
+            sheet = wb.worksheets[x]
+            span = sheet.cell(25, 10).value
+            nm = sheet.cell(19, 1).value
+
+            try:
+                span_float = float(span)
+                if "1310" in str(nm):
+                    span_1310.append(span_float)
+                elif "1550" in str(nm):
+                    span_1550.append(span_float)
+                elif "1625" in str(nm):
+                    span_1625.append(span_float)
+            except Exception as e:
+                print(f"Ein Fehler ist aufgetreten beim Lesen der Spannungsverluste für {nm} nm:", str(e))
+
+    # Default-Werte hinzufügen, wenn Listen leer sind
+    if len(span_1625) == 0:
+        span_1625.append(0)
+    if len(span_1550) == 0:
+        span_1550.append(0)
+    if len(span_1310) == 0:
+        span_1310.append(0)
+
+    return span_1310, span_1550, span_1625
+
 def readSpanlossAndCablelength(filenames):
     wb = load_workbook(file, data_only=True)
     laenge = []
@@ -124,7 +190,7 @@ def readSpanlossAndCablelength(filenames):
     return ...
             
                 
-def writeValues(...):
+def writeValues(rohr, laenge, span_1310,span_1550,span_1625):
     with open("OTDR.csv", mode="a") as OTDR_file:
         OTDR_writer = csv.writer(OTDR_file, delimiter=",", lineterminator="\r")
         OTDR_writer.writerow(
