@@ -124,12 +124,12 @@ try:
         try:
             splices = int(ws.cell(argv['splices']).value)
         except Exception as e:
-            print(e)  
+            print(e, "Value in given cell can't be used as amount of splices")  
     else:
         try:
             splices = int(argv["splices"])
         except Exception as e:
-            print(e)
+            print(e, "Given value for splices is not a cell or integer")
     for row in range(2, ws.max_row + 1):
         length = ws.cell(row=row, column=3).value
         GW_splice = 0.2
@@ -154,6 +154,6 @@ try:
 
     wb.save("OTDR_Excel_checked.xlsx")
 except Exception as e:
-    print(e)
+    print(e, "Couldn't check values")
 
 print("Done")
