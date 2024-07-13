@@ -44,15 +44,19 @@ try:
             print(file)
             wb = load_workbook(file, data_only=True)
             sh = wb.worksheets[0]
+            rohr = "None"
             try:
                 if sh.cell(8, 1).value == "Kabel-ID":
                     rohr = sh.cell(9, 1).value
                 elif sh.cell(8, 11).value == "Cable ID":
                     rohr = sh.cell(9, 11).value
-                else:
-                    rohr = "None"
             except Exception as e:
                 print("Ein Fehler ist aufgetreten I: ", str(e))
+            address = "None"
+            try: 
+                address = sh.cell(9,8).value + sh.cell(9,12).value
+            except Exception as e:
+                print(e)
             laenge = []
             span_1310 = []
             span_1550 = []
@@ -100,7 +104,7 @@ try:
             OTDR_writer.writerow(
                 [
                     #erste Zahl ändern, so dass nur Adresse in Adressspalte steht
-                    str(file[78:-4]),
+                    address,
                     rohr,
                     round(mean(laenge), 3),
                     round(max(laenge) - min(laenge), 2),
@@ -121,12 +125,30 @@ except Exception as e:
 try:
     wb = load_workbook("OTDR_Excel.xlsx")
     ws = wb.worksheets[0]
+    extra = 0.75
+    if argv["extra"]:
+        try:
+            extra = float(argv["extra"])
+        except Exception as e:
+            print(e)
+    splices = 3
+    if argv["splices"]:
+        if bool(re.compile(r"^[a-zA-Z][0-9]$").match(argv["splices"])):
+            try:
+                return int(worksheet.cell(argv['splices']).value)
+            except Exception as e:
+                print(e)  
+        else:
+            try:
+                return int(argv["splices"])
+            except Exception as e:
+                print(e)
     for row in range(2, ws.max_row + 1):
         laenge = ws.cell(row=row, column=3).value
         GW_splice = 0.2
-        GW_span_1310 = (0.36 * laenge + 0.45 + 0.7 + 0.75) + (3 * GW_splice)
-        GW_span_1550 = (0.21 * laenge + 0.45 + 0.7 + 0.75) + (3 * GW_splice)
-        GW_span_1625 = (0.25 * laenge + 0.45 + 0.7 + 0.75) + (3 * GW_splice)
+        GW_span_1310 = (0.36 * laenge + 0.45 + 0.7 + extra) + (splices * GW_splice)
+        GW_span_1550 = (0.21 * laenge + 0.45 + 0.7 + extra) + (splices * GW_splice)
+        GW_span_1625 = (0.25 * laenge + 0.45 + 0.7 + extra) + (splices * GW_splice)
         span_1310 = ws.cell(row=row, column=6).value
         span_1550 = ws.cell(row=row, column=7).value
         span_1625 = ws.cell(row=row, column=8).value
