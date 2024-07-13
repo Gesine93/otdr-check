@@ -48,7 +48,7 @@ try:
         for file in filenames:
             print(file)
             wb = load_workbook(file, data_only=True)
-            sh = wb.worksheets[0]
+            sh = wb.worksheets[1]
             pipe = "None"
             try:
                 if sh.cell(8, 1).value == "Cable ID":
@@ -57,9 +57,18 @@ try:
                     pipe = sh.cell(9, 11).value
             except Exception as e:
                 print(e, "Couldn't read , cable ID")
-            address = "None"
+            addr_1 = "None"
+            addr_2 = "None"
             try:
-                address = sh.cell(9, 7).value + ", " + sh.cell(9, 11).value
+                if sh.cell(9,7).value != None:
+                    addr_1 = str(sh.cell(9,7).value)
+                else:
+                    addr_1 = "Unknown"
+                if sh.cell(9,11).value != None:
+                    addr_2 = str(sh.cell(9,11).value)
+                else:
+                    addr_2 = "Unknown"
+                address = addr_1 + ", " + addr_2
             except Exception as e:
                 print(e, "Couldn't read address data")
             length = []
