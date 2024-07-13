@@ -59,9 +59,9 @@ try:
                 print(e, "Couldn't read , cable ID")
             address = "None"
             try:
-                address = sh.cell(9, 8).value + sh.cell(9, 12).value
+                address = sh.cell(9, 7).value + ", " + sh.cell(9, 11).value
             except Exception as e:
-                print(e, "Couldn't read adress data")
+                print(e, "Couldn't read address data")
             length = []
             span_1310 = []
             span_1550 = []
