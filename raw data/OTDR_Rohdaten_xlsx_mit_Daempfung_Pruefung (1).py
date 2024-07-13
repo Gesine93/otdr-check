@@ -10,190 +10,94 @@ from openpyxl.styles import PatternFill
 import import argparse
 import re
 
-def main():
-    GW_1310 = 4.95
-    GW_1550 = 3.93
-    GW_1625 = 4.2
-    argv = parseArguments()
-    filenames = getFiles(argv)
-    cableID = readCableID(filenames)
-    cablelength = read_cablelengths(filenames)
-    spanloss_1310, spanloss_1550, spanloss_1625 = read_spanlosses(filenames)
-    writeValues(cableID, cablelength, spanloss_1310,spanloss_1550,spanloss_1625)
-    csv_file = glob.glob(path + "\\*.csv")
-    writeExcel(csv_file)
-    checkValues(argv)
-    print("Done ")
-    
+GW_1310 = 4.95
+GW_1550 = 3.93
+GW_1625 = 4.2
 
-def parseArguments():
-    parser = argparse.ArgumentParser(
-    prog='OTDR Raw Data Checker', description='The program reads raw OTDR data in XLSX format and puts out the cable length and attenuation for each address and wavelength. It also checks if the attenuations are below the threshold value. Command line arguments: python otdr_check_rd.py [--files optional_path_to_directory] [--splices number_of_splices (integer or cell reference)] [--extra additional_attenuation]',epilog='')
-    parser.add_argument('-f', '--files')
-    parser.add_argument('-s', '--splices')
-    parser.add_argument('-e', '--extra')
-    parser.parse_args()
-    return vars(args) 
-
-def getFiles(argv):
+parser = argparse.ArgumentParser(
+prog='OTDR Raw Data Checker', description='The program reads raw OTDR data in XLSX format and puts out the cable length and attenuation for each address and wavelength. It also checks if the attenuations are below the threshold value. Command line arguments: python otdr_check_rd.py [--files optional_path_to_directory] [--splices number_of_splices (integer or cell reference)] [--extra additional_attenuation]',epilog='')
+parser.add_argument('-f', '--files')
+parser.add_argument('-s', '--splices')
+parser.add_argument('-e', '--extra')
+return parser.parse_args()
+argv = vars(args)
+try:
     path = argv["files"] or os.getcwd()
     os.chdir(path)
     filenames = glob.glob(path + "\\*.xlsx")
-    return filenames
-
-def createCSV(filenames):
     with open("OTDR.csv", mode="w") as OTDR_file:
         OTDR_writer = csv.writer(OTDR_file, delimiter=",", lineterminator="\r")
         OTDR_writer.writerow(
             [
-                "Address",
-                "Cable ID",
-                "Mean Cablelength",
-                "Deviation",
-                "Cablelengths",
+                "Adresse",
+                "Kabelnummer",
+                "Mittlere Kabellaenge",
+                "Abweichung",
+                "Kabellaengen",
                 "Spanloss 1310 [dB]",
                 "Spanloss 1550",
                 "Spanloss 1625",
-                "Home to SAI [m]",
+                "HA-KVz [m]",
             ]
         )
-
-def readCableID(filenames)
-    for file in filenames:
-        print(file)
-        wb = load_workbook(file, data_only=True)
-        sh = wb.worksheets[0]
-        try:
-            if sh.cell(8, 1).value == "Kabel-ID":
-                cable = sh.cell(9, 1).value
-            elif sh.cell(8, 11).value == "Cable ID":
-                cable = sh.cell(9, 11).value
-            else:
-                cable = "None"
-            return cable
-        except Exception as e:
-            print("Cable ID couldn't be read: ", str(e))
-
-def read_cablelengths(filenames):
-    """
-    Liest die Kabellängen aus den angegebenen Dateien.
-
-    Args:
-    filenames (list of str): Liste der Dateinamen der Excel-Dateien.
-
-    Returns:
-    list: Liste der Kabellängen.
-    """
-    laenge = []
-
-    for file in filenames:
-        wb = load_workbook(file, data_only=True)
-        for x in range(1, len(wb.sheetnames)):
-            sheet = wb.worksheets[x]
-            kabel = sheet.cell(25, 4).value
+        for file in filenames:
+            print(file)
+            wb = load_workbook(file, data_only=True)
+            sh = wb.worksheets[0]
             try:
-                kabel_float = float(kabel)
-                laenge.append(kabel_float)
+                if sh.cell(8, 1).value == "Kabel-ID":
+                    rohr = sh.cell(9, 1).value
+                elif sh.cell(8, 11).value == "Cable ID":
+                    rohr = sh.cell(9, 11).value
+                else:
+                    rohr = "None"
             except Exception as e:
-                print("Ein Fehler ist aufgetreten beim Lesen der Kabellänge:", str(e))
-
-    return laenge
-
-def read_spanlosses(filenames):
-    """
-    Liest die Spannungsverluste aus den angegebenen Dateien.
-
-    Args:
-    filenames (list of str): Liste der Dateinamen der Excel-Dateien.
-
-    Returns:
-    tuple: Listen der Spannungsverluste für 1310, 1550 und 1625 nm.
-    """
-    span_1310 = []
-    span_1550 = []
-    span_1625 = []
-
-    for file in filenames:
-        wb = load_workbook(file, data_only=True)
-        for x in range(1, len(wb.sheetnames)):
-            sheet = wb.worksheets[x]
-            span = sheet.cell(25, 10).value
-            nm = sheet.cell(19, 1).value
-
-            try:
-                span_float = float(span)
-                if "1310" in str(nm):
-                    span_1310.append(span_float)
-                elif "1550" in str(nm):
-                    span_1550.append(span_float)
-                elif "1625" in str(nm):
-                    span_1625.append(span_float)
-            except Exception as e:
-                print(f"Ein Fehler ist aufgetreten beim Lesen der Spannungsverluste für {nm} nm:", str(e))
-
-    # Default-Werte hinzufügen, wenn Listen leer sind
-    if len(span_1625) == 0:
-        span_1625.append(0)
-    if len(span_1550) == 0:
-        span_1550.append(0)
-    if len(span_1310) == 0:
-        span_1310.append(0)
-
-    return span_1310, span_1550, span_1625
-
-def readSpanlossAndCablelength(filenames):
-    wb = load_workbook(file, data_only=True)
-    laenge = []
-    span_1310 = []
-    span_1550 = []
-    span_1625 = []
-    for x in range(1, len(wb.sheetnames)):
-        sheet = wb.worksheets[x]
-        kabel = sheet.cell(25, 4).value
-        span = sheet.cell(25, 10).value
-        nm = sheet.cell(19, 1).value
-        try:
-            kabel_float = float(kabel)
-            laenge.append(kabel_float)
-                if "1310" in str(nm):
-                    try:
+                print("Ein Fehler ist aufgetreten I: ", str(e))
+            laenge = []
+            span_1310 = []
+            span_1550 = []
+            span_1625 = []
+            for x in range(1, len(wb.sheetnames)):
+                sheet = wb.worksheets[x]
+                kabel = sheet.cell(25, 4).value
+                span = sheet.cell(25, 10).value
+                nm = sheet.cell(19, 1).value
+                try:
+                    kabel_float = float(kabel)
+                    laenge.append(kabel_float)
+                    if "1310" in str(nm):
                         try:
-                            span_1310.append(float(span))
+                            try:
+                                span_1310.append(float(span))
+                            except Exception as e:
+                                print("Ein Fehler ist aufgetreten A: ", str(e))
                         except Exception as e:
-                            print("Couldn't append float of 1310 spanloss ", str(e))
-                    except Exception as e:
-                        print("Couldn't read 1310 spanloss",str(e))
-                elif "1550" in str(nm):
-                    try:
+                            print("Ein Fehler ist aufgetreten B: ",str(e))
+                    elif "1550" in str(nm):
                         try:
-                            span_1550.append(float(span))
+                            try:
+                                span_1550.append(float(span))
+                            except Exception as e:
+                                print("Ein Fehler ist aufgetreten C ", str(e))
                         except Exception as e:
-                            print("Ein Fehler ist aufgetreten C ", str(e))
-                    except Exception as e:
-                        print("Ein Fehler ist aufgetreten D ", str(e))
-                elif "1625" in str(nm):
-                    try:
+                            print("Ein Fehler ist aufgetreten D ", str(e))
+                    elif "1625" in str(nm):
                         try:
-                            span_1625.append(float(span))
+                            try:
+                                span_1625.append(float(span))
+                            except Exception as e:
+                                print("Ein Fehler ist aufgetreten E" , str(e))
                         except Exception as e:
-                            print("Ein Fehler ist aufgetreten E" , str(e))
-                    except Exception as e:
-                        print("Ein Fehler ist aufgetreten F", str(e))
-            except Exception as e:
-                print("Ein Fehler ist aufgetreten G ", str(e))
-        if len(span_1625) == 0:
-            span_1625.append(0)
-        if len(span_1550) == 0:
-            span_1550.append(0)
-        if len(span_1310) == 0:
-            span_1310.append(0)
-    return ...
-            
-                
-def writeValues(rohr, laenge, span_1310,span_1550,span_1625):
-    with open("OTDR.csv", mode="a") as OTDR_file:
-        OTDR_writer = csv.writer(OTDR_file, delimiter=",", lineterminator="\r")
-        OTDR_writer.writerow(
+                            print("Ein Fehler ist aufgetreten F", str(e))
+                except Exception as e:
+                    print("Ein Fehler ist aufgetreten G ", str(e))
+            if len(span_1625) == 0:
+                span_1625.append(0)
+            if len(span_1550) == 0:
+                span_1550.append(0)
+            if len(span_1310) == 0:
+                span_1310.append(0)
+            OTDR_writer.writerow(
                 [
                     #erste Zahl ändern, so dass nur Adresse in Adressspalte steht
                     str(file[78:-4]),
@@ -206,32 +110,23 @@ def writeValues(rohr, laenge, span_1310,span_1550,span_1625):
                     round(mean(span_1625), 3),
                 ]
             )
-        
-
-def writeExcel(csv_file):
-    for file in csv_file:
+    filenames = glob.glob(path + "\\*.csv")
+    for file in filenames:
         read_file = pd.read_csv(file, encoding="latin-1")
         read_file.to_excel("OTDR_Excel.xlsx", index=None, header=True)
 
-def checkValues(argv):
-    if argv["extra"]:
-        try:
-            extra = float(argv["extra"])
-        except:
-            
-    else:
-        extra = 0.75
-    if argv["splices"] cell value
-    else if number
-    else 3
+except Exception as e:
+    print("Ein Fehler ist aufgetreten H ", str(e))
+
+try:
     wb = load_workbook("OTDR_Excel.xlsx")
     ws = wb.worksheets[0]
     for row in range(2, ws.max_row + 1):
         laenge = ws.cell(row=row, column=3).value
         GW_splice = 0.2
-        GW_span_1310 = (0.36 * laenge + 0.45 + 0.7 + extra) + (splices * GW_splice)
-        GW_span_1550 = (0.21 * laenge + 0.45 + 0.7 + extra) + (splices * GW_splice)
-        GW_span_1625 = (0.25 * laenge + 0.45 + 0.7 + extra) + (splices * GW_splice)
+        GW_span_1310 = (0.36 * laenge + 0.45 + 0.7 + 0.75) + (3 * GW_splice)
+        GW_span_1550 = (0.21 * laenge + 0.45 + 0.7 + 0.75) + (3 * GW_splice)
+        GW_span_1625 = (0.25 * laenge + 0.45 + 0.7 + 0.75) + (3 * GW_splice)
         span_1310 = ws.cell(row=row, column=6).value
         span_1550 = ws.cell(row=row, column=7).value
         span_1625 = ws.cell(row=row, column=8).value
@@ -247,7 +142,9 @@ def checkValues(argv):
             ws.cell(row=row, column=8).fill = PatternFill(
                 start_color="00FF0000", fill_type="solid"
             )
-    wb.save("OTDR_Excel_geprueft"+ ".xlsx")
 
-if __name__ == "main":
-    main()
+    wb.save("OTDR_Excel_geprueft"+ ".xlsx")
+except Exception as e:
+    print("Ein Fehler ist aufgetreten K ",str(e))
+
+print("Done ")
