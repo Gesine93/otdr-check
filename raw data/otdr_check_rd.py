@@ -129,7 +129,7 @@ try:
     wb = load_workbook("OTDR_Excel.xlsx")
     ws = wb.worksheets[0]
     extra = float(argv["extra"])
-    if bool(re.compile(r"^[a-zA-Z][0-9]$").match(argv["splices"]))
+    if bool(re.compile(r"^[a-zA-Z][0-9]$").match(argv["splices"])):
         try:
             splices = int(ws.cell(argv['splices']).value)
         except Exception as e:
