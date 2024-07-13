@@ -17,14 +17,14 @@ parser = argparse.ArgumentParser(
     description='The program reads raw OTDR data in XLSX format and outputs the cable length and attenuation for each address and wavelength. It also checks if the attenuations are below the threshold value. Command line arguments: python otdr_check_rd.py [--files optional_path_to_directory] [--splices number_of_splices (integer or cell reference)] [--extra additional_attenuation]',
     epilog=''
 )
-parser.add_argument('-f', '--files')
-parser.add_argument('-s', '--splices')
-parser.add_argument('-e', '--extra')
+parser.add_argument('-f', '--files', default=os.getcwd())
+parser.add_argument('-s', '--splices', default=3)
+parser.add_argument('-e', '--extra', type=float, default=0.75)
 args = parser.parse_args()
 argv = vars(args)
 
 try:
-    path = argv["files"] or os.getcwd()
+    path = argv["files"] 
     os.chdir(path)
     filenames = glob.glob(path + "\\*.xlsx")
     with open("OTDR.csv", mode="w") as OTDR_file:
@@ -39,7 +39,7 @@ try:
                 "Span Loss 1310 [dB]",
                 "Span Loss 1550",
                 "Span Loss 1625",
-                "HA-KVz [m]",
+                "Home-SAI [m]",
             ]
         )
         for file in filenames:
@@ -117,24 +117,17 @@ except Exception as e:
 try:
     wb = load_workbook("OTDR_Excel.xlsx")
     ws = wb.worksheets[0]
-    extra = 0.75
-    if argv["extra"]:
+    extra = float(argv["extra"])
+    if bool(re.compile(r"^[a-zA-Z][0-9]$").match(argv["splices"]))
         try:
-            extra = float(argv["extra"])
+            splices = int(ws.cell(argv['splices']).value)
+        except Exception as e:
+            print(e)  
+    else:
+        try:
+            splices = int(argv["splices"])
         except Exception as e:
             print(e)
-    splices = 3
-    if argv["splices"]:
-        if bool(re.compile(r"^[a-zA-Z][0-9]$").match(argv["splices"])):
-            try:
-                splices = int(ws.cell(argv['splices']).value)
-            except Exception as e:
-                print(e)  
-        else:
-            try:
-                splices = int(argv["splices"])
-            except Exception as e:
-                print(e)
     for row in range(2, ws.max_row + 1):
         length = ws.cell(row=row, column=3).value
         GW_splice = 0.2
