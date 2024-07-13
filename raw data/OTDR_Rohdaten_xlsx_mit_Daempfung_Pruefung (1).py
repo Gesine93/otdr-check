@@ -27,6 +27,9 @@ try:
     path = argv["files"] 
     os.chdir(path)
     filenames = glob.glob(path + "\\*.xlsx")
+except Exception as e:
+    print(e, "Couldn't find file directory")
+try: 
     with open("OTDR.csv", mode="w") as OTDR_file:
         OTDR_writer = csv.writer(OTDR_file, delimiter=",", lineterminator="\r")
         OTDR_writer.writerow(
@@ -53,12 +56,12 @@ try:
                 elif sh.cell(8, 11).value == "Cable ID":
                     pipe = sh.cell(9, 11).value
             except Exception as e:
-                print(e)
+                print(e, "Couldn't read , cable ID")
             address = "None"
             try:
                 address = sh.cell(9, 8).value + sh.cell(9, 12).value
             except Exception as e:
-                print(e)
+                print(e, "Couldn't read adress data")
             length = []
             span_1310 = []
             span_1550 = []
@@ -75,19 +78,19 @@ try:
                         try:
                             span_1310.append(float(span))
                         except Exception as e:
-                            print(e)
+                            print(e, "Couldn't read spanloss data for 1310 nm")
                     elif "1550" in str(nm):
                         try:
                             span_1550.append(float(span))
                         except Exception as e:
-                            print(e)
+                            print(e, "Couldn't read spanloss data for 1550 nm")
                     elif "1625" in str(nm):
                         try:
                             span_1625.append(float(span))
                         except Exception as e:
-                            print(e)
+                            print(e, "Couldn't read spanloss data for 1625 nm")
                 except Exception as e:
-                    print(e)
+                    print(e, "Couldn't read cable length")
             if len(span_1625) == 0:
                 span_1625.append(0)
             if len(span_1550) == 0:
@@ -110,9 +113,8 @@ try:
     for file in filenames:
         read_file = pd.read_csv(file, encoding="latin-1")
         read_file.to_excel("OTDR_Excel.xlsx", index=None, header=True)
-
 except Exception as e:
-    print(e)
+        print(e, "Couldn't open OTDR files or create the summary file")
 
 try:
     wb = load_workbook("OTDR_Excel.xlsx")
