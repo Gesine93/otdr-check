@@ -165,4 +165,12 @@ try:
 except Exception as e:
     print(e, "Couldn't check values")
 
+try:
+    os.remove('OTDR.csv')
+except Exception as e:
+    print(e, "Couldn't delete OTDR.csv")
+try:
+    os.remove('OTDR_Excel.xlsx')
+except Exception as e:
+    print(e, "Couldn't delete OTDR_Excel.xlsx")
 print("Done")
