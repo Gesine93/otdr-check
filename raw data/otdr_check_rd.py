@@ -48,7 +48,7 @@ try:
         for file in filenames:
             print(file)
             wb = load_workbook(file, data_only=True)
-            sh = wb.worksheets[0]
+            sh = wb.worksheets[2]
             pipe = "None"
             try:
                 pipe = sh.cell(1, 1).value
@@ -69,7 +69,7 @@ try:
             span_1310 = []
             span_1550 = []
             span_1625 = []
-            for x in range(0, len(wb.sheetnames)):
+            for x in range(2, len(wb.sheetnames)+2):
                 sheet = wb.worksheets[x]
                 cable = sheet.cell(25, 4).value
                 span = sheet.cell(25, 10).value
