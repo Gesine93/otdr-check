@@ -51,17 +51,20 @@ try:
             sh = wb.worksheets[2]
             pipe = "None"
             try:
-                pipe = sh.cell(1, 1).value
+                if sh.cell(8, 1).value == "Kabel-ID":
+                    pipe = sh.cell(9, 1).value
+                elif sh.cell(8, 11).value == "Cable ID":
+                    pipe = sh.cell(9, 11).value
             except Exception as e:
                 print(e, "Couldn't read cable ID")
             addr_1 = "None"
             addr_2 = "None"
             try:
-                addr_1 = str(sh.cell(2,3).value
+                addr_1 = str(sh.cell(13,3).value
             except Exception as e:
                 print(e, "Couldn't read first part of address data")
             try:
-                addr_2 = str(sh.cell(2,11).value)
+                addr_2 = str(sh.cell(13,11).value)
             except Exception as e:
                 print(e, "Couldn't read second part of address data")
             address = addr_1 + ", " + addr_2
