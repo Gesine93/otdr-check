@@ -48,7 +48,7 @@ try:
         for file in filenames:
             print(file)
             wb = load_workbook(file, data_only=True)
-            sh = wb.worksheets[1]
+            sh = wb.worksheets[0]
             pipe = "None"
             try:
                 if sh.cell(8, 1).value == "Cable ID":
@@ -60,22 +60,19 @@ try:
             addr_1 = "None"
             addr_2 = "None"
             try:
-                if sh.cell(9,7).value != None:
-                    addr_1 = str(sh.cell(9,7).value)
-                else:
-                    addr_1 = "Unknown"
-                if sh.cell(9,11).value != None:
-                    addr_2 = str(sh.cell(9,11).value)
-                else:
-                    addr_2 = "Unknown"
-                address = addr_1 + ", " + addr_2
+                addr_1 = str(sh.cell(9,7).value
             except Exception as e:
-                print(e, "Couldn't read address data")
+                print(e, "Couldn't read first part of address data")
+            try:
+                addr_2 = str(sh.cell(9,11).value)
+            except Exception as e:
+                print(e, "Couldn't read second part of address data")
+            address = addr_1 + ", " + addr_2
             length = []
             span_1310 = []
             span_1550 = []
             span_1625 = []
-            for x in range(1, len(wb.sheetnames)):
+            for x in range(0, len(wb.sheetnames)):
                 sheet = wb.worksheets[x]
                 cable = sheet.cell(25, 4).value
                 span = sheet.cell(25, 10).value
