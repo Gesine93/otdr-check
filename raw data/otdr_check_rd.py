@@ -8,166 +8,147 @@ from openpyxl.styles import PatternFill
 import argparse
 import re
 
+# Constants for threshold values
 GW_1310 = 4.95
 GW_1550 = 3.93
 GW_1625 = 4.2
 
+# Argument parser setup
 parser = argparse.ArgumentParser(
-    prog='OTDR Raw Data Checker', 
-    description='The program reads raw OTDR data in XLSX format and outputs the cable length and attenuation for each address and wavelength. It also checks if the attenuations are below the threshold value. Command line arguments: python otdr_check_rd.py [--files optional_path_to_directory] [--splices number_of_splices (integer or cell reference)] [--extra additional_attenuation]',
-    epilog=''
+    prog='OTDR Raw Data Checker',
+    description='Reads raw OTDR data in XLSX format and outputs cable length and attenuation for each address and wavelength. Checks if the attenuations are below the threshold value.',
 )
-parser.add_argument('-f', '--files', default=os.getcwd())
-parser.add_argument('-s', '--splices', default=3)
-parser.add_argument('-e', '--extra', type=float, default=0.75)
+parser.add_argument('-f', '--files', default=os.getcwd(), help='Path to the directory containing XLSX files')
+parser.add_argument('-s', '--splices', type=int, default=3, help='Number of splices (integer)')
+parser.add_argument('-e', '--extra', type=float, default=0.75, help='Additional attenuation')
 args = parser.parse_args()
 argv = vars(args)
 
 try:
-    path = argv["files"] 
+    # Set directory path
+    path = argv["files"]
     os.chdir(path)
-    filenames = glob.glob(path + "\\*.xlsx")
+    filenames = glob.glob(path + "/*.xlsx")
 except Exception as e:
     print(e, "Couldn't find file directory")
-try: 
-    with open("OTDR.csv", mode="w") as OTDR_file:
-        OTDR_writer = csv.writer(OTDR_file, delimiter=",", lineterminator="\r")
-        OTDR_writer.writerow(
-            [
-                "Address",
-                "Cable Number",
-                "Average Cable Length",
-                "Deviation",
-                "Cable Lengths",
-                "Span Loss 1310 [dB]",
-                "Span Loss 1550",
-                "Span Loss 1625",
-                "Home-SAI [m]",
-            ]
-        )
-        for file in filenames:
-            print(file)
-            wb = load_workbook(file, data_only=True)
-            sh = wb.worksheets[2]
-            pipe = "None"
-            try:
-                if sh.cell(8, 1).value == "Kabel-ID":
-                    pipe = sh.cell(9, 1).value
-                elif sh.cell(8, 11).value == "Cable ID":
-                    pipe = sh.cell(9, 11).value
-            except Exception as e:
-                print(e, "Couldn't read cable ID")
-            addr_1 = "None"
-            addr_2 = "None"
-            try:
-                addr_1 = str(sh.cell(13,3).value
-            except Exception as e:
-                print(e, "Couldn't read first part of address data")
-            try:
-                addr_2 = str(sh.cell(13,11).value)
-            except Exception as e:
-                print(e, "Couldn't read second part of address data")
-            address = addr_1 + ", " + addr_2
-            length = []
-            span_1310 = []
-            span_1550 = []
-            span_1625 = []
-            for x in range(2, len(wb.sheetnames)+2):
-                sheet = wb.worksheets[x]
-                cable = sheet.cell(25, 4).value
-                span = sheet.cell(25, 10).value
-                nm = sheet.cell(19, 1).value
-                try:
-                    cable_float = float(cable)
-                    length.append(cable_float)
-                    if "1310" in str(nm):
-                        try:
-                            span_1310.append(float(span))
-                        except Exception as e:
-                            print(e, "Couldn't read spanloss data for 1310 nm")
-                    elif "1550" in str(nm):
-                        try:
-                            span_1550.append(float(span))
-                        except Exception as e:
-                            print(e, "Couldn't read spanloss data for 1550 nm")
-                    elif "1625" in str(nm):
-                        try:
-                            span_1625.append(float(span))
-                        except Exception as e:
-                            print(e, "Couldn't read spanloss data for 1625 nm")
-                except Exception as e:
-                    print(e, "Couldn't read cable length")
-            if len(span_1625) == 0:
-                span_1625.append(0)
-            if len(span_1550) == 0:
-                span_1550.append(0)
-            if len(span_1310) == 0:
-                span_1310.append(0)
-            OTDR_writer.writerow(
-                [
-                    address,
-                    pipe,
-                    round(mean(length), 3),
-                    round(max(length) - min(length), 2),
-                    length,
-                    round(mean(span_1310), 3),
-                    round(mean(span_1550), 3),
-                    round(mean(span_1625), 3),
-                ]
-            )
-    filenames = glob.glob(path + "\\*.csv")
-    for file in filenames:
-        read_file = pd.read_csv(file, encoding="latin-1")
-        read_file.to_excel("OTDR_Excel.xlsx", index=None, header=True)
-except Exception as e:
-        print(e, "Couldn't open OTDR files or create the summary file")
+    exit(1)
 
+# CSV file to store results
+csv_filename = "OTDR.csv"
+with open(csv_filename, mode="w", newline='') as OTDR_file:
+    OTDR_writer = csv.writer(OTDR_file, delimiter=",")
+    OTDR_writer.writerow([
+        "Address", "Cable Number", "Average Cable Length", "Deviation", "Cable Lengths",
+        "Span Loss 1310 [dB]", "Span Loss 1550", "Span Loss 1625", "Home-SAI [m]",
+    ])
+
+    for file in filenames:
+        print(f"Processing file: {file}")
+        wb = load_workbook(file, data_only=True)
+        sh = wb.worksheets[2]
+        pipe = "None"
+
+        # Reading cable ID
+        try:
+            if "ID" in sh.cell(8, 1).value :
+                pipe = sh.cell(9, 1).value
+            elif "ID" in sh.cell(8, 11).value:
+                pipe = sh.cell(9, 11).value
+        except Exception as e:
+            print(e, "Couldn't read cable ID")
+
+        # Reading address
+        try:
+            addr_1 = sh.cell(13, 3).value or ""
+            addr_2 = sh.cell(13, 11).value or ""
+            address = f"{addr_1}, {addr_2}"
+        except Exception as e:
+            print(e, "Couldn't read address data")
+            address = "None, None"
+
+        length = []
+        span_1310 = []
+        span_1550 = []
+        span_1625 = []
+
+        # Reading cable length and span loss
+        for sheet in wb.worksheets[2:]:
+            try:
+                cable = float(sheet.cell(25, 4).value)
+                length.append(cable)
+                nm = sheet.cell(19, 1).value
+                span = float(sheet.cell(25, 10).value)
+
+                if "1310" in str(nm):
+                    span_1310.append(span)
+                elif "1550" in str(nm):
+                    span_1550.append(span)
+                elif "1625" in str(nm):
+                    span_1625.append(span)
+            except Exception as e:
+                print(e, "Couldn't read data")
+
+        # Filling missing span losses with 0
+        span_1625 = span_1625 or [0]
+        span_1550 = span_1550 or [0]
+        span_1310 = span_1310 or [0]
+
+        # Writing data to CSV
+        try:
+            OTDR_writer.writerow([
+                address, pipe, round(mean(length), 3), round(max(length) - min(length), 2), length,
+                round(mean(span_1310), 3), round(mean(span_1550), 3), round(mean(span_1625), 3),
+            ])
+        except Exception as e:
+            print(e, "Couldn't write data to CSV")
+
+# Convert CSV to Excel
+csv_df = pd.read_csv(csv_filename, encoding="latin-1")
+excel_filename = "OTDR_Excel.xlsx"
+csv_df.to_excel(excel_filename, index=False, header=True)
+
+# Checking values and applying formatting
 try:
-    wb = load_workbook("OTDR_Excel.xlsx")
-    ws = wb.worksheets[0]
+    wb = load_workbook(excel_filename)
+    ws = wb.active
     extra = float(argv["extra"])
-    if bool(re.compile(r"^[a-zA-Z][0-9]$").match(argv["splices"])):
-        try:
-            splices = int(ws.cell(argv['splices']).value)
-        except Exception as e:
-            print(e, "Value in given cell can't be used as amount of splices")  
-    else:
-        try:
-            splices = int(argv["splices"])
-        except Exception as e:
-            print(e, "Given value for splices is not a cell or integer")
+    splices = int(argv["splices"])
+
+    # Iterate over rows and apply checks
     for row in range(2, ws.max_row + 1):
         length = ws.cell(row=row, column=3).value
         GW_splice = 0.2
         GW_span_1310 = (0.36 * length + 0.45 + 0.7 + extra) + (splices * GW_splice)
         GW_span_1550 = (0.21 * length + 0.45 + 0.7 + extra) + (splices * GW_splice)
         GW_span_1625 = (0.25 * length + 0.45 + 0.7 + extra) + (splices * GW_splice)
+
         span_1310 = ws.cell(row=row, column=6).value
         span_1550 = ws.cell(row=row, column=7).value
         span_1625 = ws.cell(row=row, column=8).value
-        if span_1310 > GW_span_1310:
-            ws.cell(row=row, column=6).fill = PatternFill(
-                start_color="00FF0000", fill_type="solid"
-            )
-        if span_1550 > GW_span_1550:
-            ws.cell(row=row, column=7).fill = PatternFill(
-                start_color="00FF0000", fill_type="solid"
-            )
-        if span_1625 > GW_span_1625:
-            ws.cell(row=row, column=8).fill = PatternFill(
-                start_color="00FF0000", fill_type="solid"
-            )
 
-    wb.save("OTDR_Excel_checked.xlsx")
+        if span_1310 > GW_span_1310:
+            ws.cell(row=row, column=6).fill = PatternFill(start_color="00FF0000", fill_type="solid")
+        if span_1550 > GW_span_1550:
+            ws.cell(row=row, column=7).fill = PatternFill(start_color="00FF0000", fill_type="solid")
+        if span_1625 > GW_span_1625:
+            ws.cell(row=row, column=8).fill = PatternFill(start_color="00FF0000", fill_type="solid")
+
+    checked_excel_filename = "OTDR_Excel_checked.xlsx"
+    wb.save(checked_excel_filename)
 except Exception as e:
     print(e, "Couldn't check values")
 
+# Clean up temporary files
 try:
-    os.remove('OTDR.csv')
+    os.remove(csv_filename)
 except Exception as e:
-    print(e, "Couldn't delete OTDR.csv")
+    print(e, "Couldn't delete temporary CSV file")
+
 try:
-    os.remove('OTDR_Excel.xlsx')
+    os.remove(excel_filename)
 except Exception as e:
-    print(e, "Couldn't delete OTDR_Excel.xlsx")
+    print(e, "Couldn't delete temporary Excel file")
+
 print("Done")
+
+
